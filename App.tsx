@@ -2,12 +2,14 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import * as SecureStore from 'expo-secure-store';
-import React, { ComponentProps, FC } from 'react';
+import React, { ComponentProps, FC, useState } from 'react';
 import {
   StyleSheet,
   Text,
   TextInput,
+  TextInputProps,
   TouchableOpacity,
+  TouchableOpacityProps,
   View
 } from 'react-native';
 
@@ -22,13 +24,18 @@ const BackgroundDesign: FC = () => {
   );
 };
 
-interface InputProps {
+type InputProps = TextInputProps & {
   icon: MaterialIconName;
   name: string;
   placeholder?: string;
-}
+};
 
-const Input: FC<InputProps> = ({ icon, name, placeholder = null }) => {
+const Input: FC<InputProps> = ({
+  icon,
+  name,
+  placeholder = null,
+  ...props
+}) => {
   return (
     <View style={formStyles.container}>
       <Text style={formStyles.label}>{name}</Text>
@@ -40,21 +47,24 @@ const Input: FC<InputProps> = ({ icon, name, placeholder = null }) => {
           style={formStyles.input}
           placeholder={placeholder ?? name}
           placeholderTextColor="#75757F"
+          {...props}
         />
       </View>
     </View>
   );
 };
 
-interface SubmitButtonProps {
+type SubmitButtonProps = Pick<TouchableOpacityProps, 'onPress'> & {
   text: string;
-  onClick: () => void;
-}
+};
 
-const SubmitButton: FC<SubmitButtonProps> = ({ text }) => {
+const SubmitButton: FC<SubmitButtonProps> = ({ text, onPress }) => {
   return (
     <View style={buttonStyles.container}>
-      <TouchableOpacity style={buttonStyles.button} activeOpacity={0.7}>
+      <TouchableOpacity
+        style={buttonStyles.button}
+        activeOpacity={0.7}
+        onPress={onPress}>
         <Text style={buttonStyles.text}>{text}</Text>
       </TouchableOpacity>
     </View>
@@ -66,27 +76,79 @@ const save = async (key: string, value: Record<string, any>) => {
 };
 
 const SignInScreen: FC = () => {
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+
   return (
     <View style={styles.container}>
       <Text style={styles.titleText}>Sweeter</Text>
       <Text style={styles.subtitleText}>Sign in</Text>
-      <Input icon="mail-outline" name="Email" />
-      <Input icon="vpn-key" name="Password" />
-      <SubmitButton text="Sign in" onClick={() => undefined} />
+      <Input
+        icon="mail-outline"
+        name="Email"
+        value={email}
+        onChangeText={setEmail}
+      />
+      <Input
+        icon="vpn-key"
+        name="Password"
+        value={password}
+        onChangeText={setPassword}
+      />
+      <SubmitButton
+        text="Sign in"
+        onPress={() =>
+          save('user', {
+            email,
+            password,
+          })
+        }
+      />
       <BackgroundDesign />
     </View>
   );
 };
 
 const PaymentScreen: FC = () => {
+  const [card, setCard] = useState<string>('');
+  const [name, setName] = useState<string>('');
+  const [date, setDate] = useState<string>('');
+  const [cvv, setCvv] = useState<string>('');
+
   return (
     <View style={styles.container}>
       <Text style={styles.subtitleText}>Payment</Text>
-      <Input icon="credit-card" name="Card number" />
-      <Input icon="person" name="Full name" />
-      <Input icon="date-range" name="Expiry date" placeholder="mm/yy" />
-      <Input icon="vpn-key" name="CVV" />
-      <SubmitButton text="Pay" onClick={() => undefined} />
+      <Input
+        icon="credit-card"
+        name="Card number"
+        onChangeText={setCard}
+        value={card}
+      />
+      <Input
+        icon="person"
+        name="Full name"
+        onChangeText={setName}
+        value={name}
+      />
+      <Input
+        icon="date-range"
+        name="Expiry date"
+        placeholder="mm/yy"
+        onChangeText={setDate}
+        value={date}
+      />
+      <Input icon="vpn-key" name="CVV" onChangeText={setCvv} value={cvv} />
+      <SubmitButton
+        text="Pay"
+        onPress={() =>
+          save('card', {
+            card,
+            name,
+            date,
+            cvv,
+          })
+        }
+      />
       <BackgroundDesign />
     </View>
   );
