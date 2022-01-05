@@ -2,7 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import * as SecureStore from 'expo-secure-store';
-import React, { ComponentProps, FC, useState } from 'react';
+import React, { ComponentProps, FC, useEffect, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -73,6 +73,10 @@ const SubmitButton: FC<SubmitButtonProps> = ({ text, onPress }) => {
 
 const save = async (key: string, value: Record<string, any>) => {
   await SecureStore.setItemAsync(key, JSON.stringify(value));
+};
+
+const getValueFor = async (key: string) => {
+  return await SecureStore.getItemAsync(key);
 };
 
 const SignInScreen: FC = () => {
@@ -155,9 +159,34 @@ const PaymentScreen: FC = () => {
 };
 
 const StatusScreen: FC = () => {
+  const [user, setUser] = useState<null | string>(null);
+  const [card, setCard] = useState<null | string>(null);
+  const [status, setStatus] = useState<string>('loading');
+
+  const getStatus = async () => {
+    try {
+      setStatus('loading');
+      const securedUser = await getValueFor('user');
+      const securedCard = await getValueFor('card');
+      setUser(securedUser);
+      setCard(securedCard);
+      setStatus('success');
+    } catch (err) {
+      setStatus('error');
+    }
+  };
+
+  useEffect(() => {
+    getStatus();
+  }, []);
+
   return (
-    <View>
+    <View style={styles.container}>
       <Text>Status</Text>
+      <Text>User</Text>
+      <Text>{status === 'loading' ? 'loading' : user}</Text>
+      <Text>Card</Text>
+      <Text>{status === 'loading' ? 'loading' : card}</Text>
     </View>
   );
 };
@@ -193,6 +222,7 @@ const App: FC = () => {
             tabBarIcon: ({ color, size }) => (
               <MaterialIcons name="data-usage" color={color} size={size} />
             ),
+            unmountOnBlur: true,
           }}
         />
       </Tab.Navigator>
