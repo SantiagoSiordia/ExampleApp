@@ -1,6 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
+import * as SecureStore from 'expo-secure-store';
 import React, { ComponentProps, FC } from 'react';
 import {
   StyleSheet,
@@ -47,6 +48,7 @@ const Input: FC<InputProps> = ({ icon, name, placeholder = null }) => {
 
 interface SubmitButtonProps {
   text: string;
+  onClick: () => void;
 }
 
 const SubmitButton: FC<SubmitButtonProps> = ({ text }) => {
@@ -59,6 +61,10 @@ const SubmitButton: FC<SubmitButtonProps> = ({ text }) => {
   );
 };
 
+const save = async (key: string, value: Record<string, any>) => {
+  await SecureStore.setItemAsync(key, JSON.stringify(value));
+};
+
 const SignInScreen: FC = () => {
   return (
     <View style={styles.container}>
@@ -66,7 +72,7 @@ const SignInScreen: FC = () => {
       <Text style={styles.subtitleText}>Sign in</Text>
       <Input icon="mail-outline" name="Email" />
       <Input icon="vpn-key" name="Password" />
-      <SubmitButton text="Sign in" />
+      <SubmitButton text="Sign in" onClick={() => undefined} />
       <BackgroundDesign />
     </View>
   );
@@ -74,8 +80,14 @@ const SignInScreen: FC = () => {
 
 const PaymentScreen: FC = () => {
   return (
-    <View>
-      <Text>Payment</Text>
+    <View style={styles.container}>
+      <Text style={styles.subtitleText}>Payment</Text>
+      <Input icon="credit-card" name="Card number" />
+      <Input icon="person" name="Full name" />
+      <Input icon="date-range" name="Expiry date" placeholder="mm/yy" />
+      <Input icon="vpn-key" name="CVV" />
+      <SubmitButton text="Pay" onClick={() => undefined} />
+      <BackgroundDesign />
     </View>
   );
 };
@@ -162,6 +174,7 @@ const styles = StyleSheet.create({
     flex: 1,
     zIndex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
     textAlign: 'center',
     color: 'black',
   },
@@ -174,6 +187,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     textAlign: 'center',
     color: 'black',
+    marginBottom: 32,
   },
 });
 
@@ -183,7 +197,7 @@ const formStyles = StyleSheet.create({
   },
   label: {
     color: 'black',
-    fontSize: 16,
+    fontSize: 12,
     marginLeft: 15,
   },
   inputContainer: {
