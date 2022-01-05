@@ -1,6 +1,6 @@
 # Example Apps
 
-This repo is to have a control of all app I do to instruct my React Native course in BEDU.
+This repo is to have a control of all apps I do to instruct my React Native course in BEDU.
 
 ## Nomenclature:
 
