@@ -2,6 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import * as SecureStore from 'expo-secure-store';
+import { useFormik } from 'formik';
 import React, { ComponentProps, FC, useEffect, useState } from 'react';
 import {
   StyleSheet,
@@ -80,8 +81,13 @@ const getValueFor = async (key: string) => {
 };
 
 const SignInScreen: FC = () => {
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
+  const signInForm = useFormik({
+    initialValues: {
+      email: '',
+      password: '',
+    },
+    onSubmit: values => save('user', values),
+  });
 
   return (
     <View style={styles.container}>
@@ -90,24 +96,16 @@ const SignInScreen: FC = () => {
       <Input
         icon="mail-outline"
         name="Email"
-        value={email}
-        onChangeText={setEmail}
+        value={signInForm.values.email}
+        onChangeText={signInForm.handleChange('email')}
       />
       <Input
-        icon="vpn-key"
-        name="Password"
-        value={password}
-        onChangeText={setPassword}
+        icon="mail-outline"
+        name="Email"
+        value={signInForm.values.password}
+        onChangeText={signInForm.handleChange('password')}
       />
-      <SubmitButton
-        text="Sign in"
-        onPress={() =>
-          save('user', {
-            email,
-            password,
-          })
-        }
-      />
+      <SubmitButton text="Sign in" onPress={signInForm.handleSubmit} />
       <BackgroundDesign />
     </View>
   );
