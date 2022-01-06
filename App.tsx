@@ -112,10 +112,15 @@ const SignInScreen: FC = () => {
 };
 
 const PaymentScreen: FC = () => {
-  const [card, setCard] = useState<string>('');
-  const [name, setName] = useState<string>('');
-  const [date, setDate] = useState<string>('');
-  const [cvv, setCvv] = useState<string>('');
+  const paymentForm = useFormik({
+    initialValues: {
+      card: '',
+      name: '',
+      date: '',
+      cvv: '',
+    },
+    onSubmit: values => save('user', values),
+  });
 
   return (
     <View style={styles.container}>
@@ -123,34 +128,29 @@ const PaymentScreen: FC = () => {
       <Input
         icon="credit-card"
         name="Card number"
-        onChangeText={setCard}
-        value={card}
+        onChangeText={paymentForm.handleChange('card')}
+        value={paymentForm.values.card}
       />
       <Input
         icon="person"
         name="Full name"
-        onChangeText={setName}
-        value={name}
+        onChangeText={paymentForm.handleChange('name')}
+        value={paymentForm.values.name}
       />
       <Input
         icon="date-range"
         name="Expiry date"
         placeholder="mm/yy"
-        onChangeText={setDate}
-        value={date}
+        onChangeText={paymentForm.handleChange('date')}
+        value={paymentForm.values.date}
       />
-      <Input icon="vpn-key" name="CVV" onChangeText={setCvv} value={cvv} />
-      <SubmitButton
-        text="Pay"
-        onPress={() =>
-          save('card', {
-            card,
-            name,
-            date,
-            cvv,
-          })
-        }
+      <Input
+        icon="vpn-key"
+        name="CVV"
+        onChangeText={paymentForm.handleChange('cvv')}
+        value={paymentForm.values.cvv}
       />
+      <SubmitButton text="Pay" onPress={paymentForm.handleSubmit} />
       <BackgroundDesign />
     </View>
   );
