@@ -13,6 +13,7 @@ import {
   TouchableOpacityProps,
   View
 } from 'react-native';
+import * as Yup from 'yup';
 
 type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
 
@@ -55,17 +56,24 @@ const Input: FC<InputProps> = ({
   );
 };
 
-type SubmitButtonProps = Pick<TouchableOpacityProps, 'onPress'> & {
+type SubmitButtonProps = TouchableOpacityProps & {
   text: string;
 };
 
-const SubmitButton: FC<SubmitButtonProps> = ({ text, onPress }) => {
+const SubmitButton: FC<SubmitButtonProps> = ({ text, ...props }) => {
   return (
     <View style={buttonStyles.container}>
       <TouchableOpacity
-        style={buttonStyles.button}
+        style={StyleSheet.flatten([
+          buttonStyles.button,
+          {
+            backgroundColor: props.disabled
+              ? 'rgba(80, 113, 175, 0.4)'
+              : 'rgb(80, 113, 175)',
+          },
+        ])}
         activeOpacity={0.7}
-        onPress={onPress}>
+        {...props}>
         <Text style={buttonStyles.text}>{text}</Text>
       </TouchableOpacity>
     </View>
@@ -81,12 +89,24 @@ const getValueFor = async (key: string) => {
 };
 
 const SignInScreen: FC = () => {
+  const SigninSchema = Yup.object().shape({
+    email: Yup.string()
+      .required('Required')
+      .email('Must be a valid email address'),
+    password: Yup.string()
+      .min(8, 'Too Short!')
+      .max(25, 'Too Long!')
+      .matches(/[A-Za-z]/, 'Only latin characters')
+      .required('Required'),
+  });
+
   const signInForm = useFormik({
     initialValues: {
       email: '',
       password: '',
     },
     onSubmit: values => save('user', values),
+    validationSchema: SigninSchema,
   });
 
   return (
@@ -100,12 +120,16 @@ const SignInScreen: FC = () => {
         onChangeText={signInForm.handleChange('email')}
       />
       <Input
-        icon="mail-outline"
-        name="Email"
+        icon="vpn-key"
+        name="Password"
         value={signInForm.values.password}
         onChangeText={signInForm.handleChange('password')}
       />
-      <SubmitButton text="Sign in" onPress={signInForm.handleSubmit} />
+      <SubmitButton
+        text="Sign in"
+        onPress={signInForm.handleSubmit}
+        disabled={!signInForm.isValid}
+      />
       <BackgroundDesign />
     </View>
   );
@@ -313,7 +337,6 @@ const formStyles = StyleSheet.create({
 
 const buttonStyles = StyleSheet.create({
   button: {
-    backgroundColor: '#5071AF',
     marginHorizontal: 48,
     height: 30,
     borderRadius: 15,
