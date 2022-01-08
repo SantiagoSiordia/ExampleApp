@@ -30,28 +30,65 @@ type InputProps = TextInputProps & {
   icon: MaterialIconName;
   name: string;
   placeholder?: string;
+  error?: boolean;
+  errorMessage?: string;
 };
 
 const Input: FC<InputProps> = ({
   icon,
   name,
   placeholder = null,
+  error = false,
+  errorMessage,
   ...props
 }) => {
   return (
     <View style={formStyles.container}>
-      <Text style={formStyles.label}>{name}</Text>
-      <View style={formStyles.inputContainer}>
+      <Text
+        style={StyleSheet.flatten([
+          formStyles.label,
+          error
+            ? {
+                color: '#c42348',
+              }
+            : {},
+        ])}>
+        {name}
+      </Text>
+      <View
+        style={StyleSheet.flatten([
+          formStyles.inputContainer,
+          error
+            ? {
+                borderWidth: 2,
+                borderColor: '#c42348',
+              }
+            : {},
+        ])}>
         <View style={formStyles.iconContainer}>
-          <MaterialIcons name={icon} size={24} color="black" />
+          <MaterialIcons
+            name={icon}
+            size={24}
+            color={error ? '#c42348' : 'black'}
+          />
         </View>
         <TextInput
-          style={formStyles.input}
+          style={StyleSheet.flatten([
+            formStyles.input,
+            error
+              ? {
+                  color: '#c42348',
+                }
+              : {},
+          ])}
           placeholder={placeholder ?? name}
           placeholderTextColor="#75757F"
           {...props}
         />
       </View>
+      {error && (
+        <Text style={formStyles.errorMessage}>Error: {errorMessage}</Text>
+      )}
     </View>
   );
 };
@@ -118,12 +155,18 @@ const SignInScreen: FC = () => {
         name="Email"
         value={signInForm.values.email}
         onChangeText={signInForm.handleChange('email')}
+        onBlur={signInForm.handleBlur('email')}
+        error={signInForm.touched.email && !!signInForm.errors.email}
+        errorMessage={signInForm.errors.email}
       />
       <Input
         icon="vpn-key"
         name="Password"
         value={signInForm.values.password}
         onChangeText={signInForm.handleChange('password')}
+        onBlur={signInForm.handleBlur('password')}
+        error={signInForm.touched.password && !!signInForm.errors.password}
+        errorMessage={signInForm.errors.password}
       />
       <SubmitButton
         text="Sign in"
@@ -308,6 +351,7 @@ const styles = StyleSheet.create({
 const formStyles = StyleSheet.create({
   container: {
     marginHorizontal: 48,
+    marginBottom: 8,
   },
   label: {
     color: 'black',
@@ -322,8 +366,8 @@ const formStyles = StyleSheet.create({
     justifyContent: 'center',
     flexDirection: 'row',
     width: '100%',
-    marginBottom: 8,
   },
+  inputContainerError: {},
   iconContainer: {
     height: 30,
     width: 40,
@@ -332,6 +376,11 @@ const formStyles = StyleSheet.create({
   },
   input: {
     width: '80%',
+  },
+  errorMessage: {
+    color: '#c42348',
+    fontSize: 12,
+    marginLeft: 15,
   },
 });
 
