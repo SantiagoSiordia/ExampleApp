@@ -143,7 +143,7 @@ const PaymentScreen: FC = () => {
       date: '',
       cvv: '',
     },
-    onSubmit: values => save('user', values),
+    onSubmit: values => save('card', values),
   });
 
   return (
