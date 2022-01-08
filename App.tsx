@@ -1,6 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
+import valid from 'card-validator';
 import * as SecureStore from 'expo-secure-store';
 import { useFormik } from 'formik';
 import React, { ComponentProps, FC, useEffect, useState } from 'react';
@@ -166,6 +167,29 @@ const SignInScreen: FC = () => {
 };
 
 const PaymentScreen: FC = () => {
+  const PaymentSchema = Yup.object().shape({
+    card: Yup.string().test(
+      'test-number',
+      'Credit Card number is invalid',
+      number => valid.number(number).isValid,
+    ),
+    name: Yup.string().test(
+      'test-name',
+      'Name is invalid',
+      name => valid.cardholderName(name).isValid,
+    ),
+    date: Yup.string().test(
+      'test-date',
+      'Expiration date is invalid',
+      date => valid.expirationDate(date).isValid,
+    ),
+    cvv: Yup.string().test(
+      'test-date',
+      'CVV is invalid',
+      cvv => valid.cvv(cvv).isValid,
+    ),
+  });
+
   const paymentForm = useFormik({
     initialValues: {
       card: '',
@@ -174,6 +198,7 @@ const PaymentScreen: FC = () => {
       cvv: '',
     },
     onSubmit: values => save('card', values),
+    validationSchema: PaymentSchema,
   });
 
   return (
@@ -184,12 +209,18 @@ const PaymentScreen: FC = () => {
         name="Card number"
         onChangeText={paymentForm.handleChange('card')}
         value={paymentForm.values.card}
+        onBlur={paymentForm.handleBlur('card')}
+        error={paymentForm.touched.card && !!paymentForm.errors.card}
+        errorMessage={paymentForm.errors.card}
       />
       <Input
         icon="person"
         name="Full name"
         onChangeText={paymentForm.handleChange('name')}
         value={paymentForm.values.name}
+        onBlur={paymentForm.handleBlur('name')}
+        error={paymentForm.touched.name && !!paymentForm.errors.name}
+        errorMessage={paymentForm.errors.name}
       />
       <Input
         icon="date-range"
@@ -197,14 +228,24 @@ const PaymentScreen: FC = () => {
         placeholder="mm/yy"
         onChangeText={paymentForm.handleChange('date')}
         value={paymentForm.values.date}
+        onBlur={paymentForm.handleBlur('date')}
+        error={paymentForm.touched.date && !!paymentForm.errors.date}
+        errorMessage={paymentForm.errors.date}
       />
       <Input
         icon="vpn-key"
         name="CVV"
         onChangeText={paymentForm.handleChange('cvv')}
         value={paymentForm.values.cvv}
+        onBlur={paymentForm.handleBlur('cvv')}
+        error={paymentForm.touched.cvv && !!paymentForm.errors.cvv}
+        errorMessage={paymentForm.errors.cvv}
       />
-      <SubmitButton text="Pay" onPress={paymentForm.handleSubmit} />
+      <SubmitButton
+        text="Pay"
+        onPress={paymentForm.handleSubmit}
+        disabled={!paymentForm.isValid}
+      />
       <BackgroundDesign />
     </View>
   );
