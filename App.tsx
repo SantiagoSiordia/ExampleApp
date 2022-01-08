@@ -47,23 +47,14 @@ const Input: FC<InputProps> = ({
       <Text
         style={StyleSheet.flatten([
           formStyles.label,
-          error
-            ? {
-                color: '#c42348',
-              }
-            : {},
+          error ? formStyles.errorTextColor : {},
         ])}>
         {name}
       </Text>
       <View
         style={StyleSheet.flatten([
           formStyles.inputContainer,
-          error
-            ? {
-                borderWidth: 2,
-                borderColor: '#c42348',
-              }
-            : {},
+          error ? formStyles.inputContainerError : {},
         ])}>
         <View style={formStyles.iconContainer}>
           <MaterialIcons
@@ -75,11 +66,7 @@ const Input: FC<InputProps> = ({
         <TextInput
           style={StyleSheet.flatten([
             formStyles.input,
-            error
-              ? {
-                  color: '#c42348',
-                }
-              : {},
+            error ? formStyles.errorTextColor : {},
           ])}
           placeholder={placeholder ?? name}
           placeholderTextColor="#75757F"
@@ -367,7 +354,6 @@ const formStyles = StyleSheet.create({
     flexDirection: 'row',
     width: '100%',
   },
-  inputContainerError: {},
   iconContainer: {
     height: 30,
     width: 40,
@@ -381,6 +367,13 @@ const formStyles = StyleSheet.create({
     color: '#c42348',
     fontSize: 12,
     marginLeft: 15,
+  },
+  inputContainerError: {
+    borderWidth: 2,
+    borderColor: '#c42348',
+  },
+  errorTextColor: {
+    color: '#c42348',
   },
 });
 
