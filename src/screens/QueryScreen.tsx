@@ -6,7 +6,7 @@ import {
   SubmitButton,
   toggleTheme,
   useAppSelector,
-  useCharacters
+  useCharacters,
 } from '..';
 
 const ThemeSwitch: FC = () => {
